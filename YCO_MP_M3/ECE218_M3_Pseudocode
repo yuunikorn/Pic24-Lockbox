@@ -1,0 +1,204 @@
+Pseudocode - Milestone 3 - ECE218
+Yu Chang Ou 
+
+
+include standard header files and initialization files
+include standard libraries (stdint,stdio,stdlib)
+define PIC settings
+configure PIC clock signals
+
+define eeprom pins
+define I2C communication
+
+define pin controls for keypad input
+define slider switch input pin
+
+define speaker output pin
+define pin for LCD output display
+define motor/soleniod control pins
+
+define globalvalues
+	-char storepassword[];
+	-char trypassword[];
+
+configure pin definitions: void
+	[inputs]
+	RA1 (pin3) = keypad row 1
+	RA2 (pin9) = keypad row 2
+	RB3 (pin7) = keypad row 3
+	RB1 (pin5) = keypad row 4
+	RB0 (pin4) = keypad col 1
+	RA0 (pin2) = keypad col 2
+	RB2 (pin6) = keypad col 3
+	RA3 (pin10) = capacitive touch/button
+	[outputs]
+	RB10 (pin21) = motor driver 1,2EN
+	RB11 (pin22) = motor driver 1A
+	RB12 (pin23) = motor driver 2A
+	RA4 (pin11) = speaker
+	RB9 (pin18) = eeprom SDA
+	RB8 (pin17) = eeprom SCL
+	RB15 (pin26) = LCD pin 4
+	RB13 (pin24) = LCD pin 5
+	RB14 (pin25) = LCD pin 6
+	RB5 (pin14) = LCD pin 11
+	RB6 (pin15) = LCD pin 12
+	RB7 (pin16) = LCD pin 13
+	RB4 (pin11) = LCD pin 14
+
+LCD printing(char[]): takes char[], returns void
+	WriteCMD(0b10000000)
+	WriteData(char[])
+
+LCD printingLower(char[]): takes char[], returns void
+	WriteCMD(0b11000000)
+	WriteData(char[])
+
+Keypad numbers(): returns char value
+	if row 1, column 1,
+		delay 25us
+		return 1
+	if row 1, column 2,
+		delay 25us
+		return 2
+	if row 1, column 3,
+		delay 25us
+		return 3
+	if row 2, column 1,
+		delay 25us
+		return 4
+	if row 2, column 2,
+		delay 25us
+		return 5
+	if row 2, column 3,
+		delay 25us
+		return 6
+	if row 3, column 1,
+		delay 25us
+		return 7
+	if row 3, column 2,
+		delay 25us
+		return 8
+	if row 3, column 3,
+		delay 25us
+		return 9
+	if row 4, column 1,
+		delay 25us
+		return *
+	if row 4, column 2,
+		delay 25us
+		return 0
+	if row 4, column 3,
+		delay 25us
+		return #
+
+
+ser.c getU2: Return number();
+	while(U2STAbits.URXDA!=1);while(U2STAbits.URXDA!=1);
+    	return U2RXREG;
+
+
+Keypad storing(): display numbers on screen
+	WriteCMD(0b10000000)
+	WriteData (line 1):(“please save a password”)
+	int num = 0;
+	char storing[];
+	for (int i = 0 ; i <= 16 && getU2() != “*”; i++)
+		storing[i] = getU2()
+		num++
+		WriteCMD(0b11000000)
+		putsU2(storing)
+	storepassword = storing
+
+
+
+Keypad entering(): display numbers on screen
+	WriteCMD(0b10000000)
+	WriteData (line 1):(“please enter password”)
+	int num = 0;
+	char entering[];
+	for (int i = 0 ; i <= 16 && getU2() != “#”; i++)
+		entering[i] = getU2()
+		num++
+		WriteCMD(0b11000000)
+		putsU2(entering)
+	trypassword = entering
+
+
+
+Keypad comparison(): return true or false
+	for (int i = 0 ; i <= 16 ; i++)
+		if (storepassword[i] != trypassword[i])
+			return false
+	return true
+
+
+CapTouch touch(): returns true or false
+	return isTouching
+
+
+Solenoid opensoleniod(): void
+	opens soleniod
+
+Solenoid closesoleniod(): void
+	while getU2 != *;
+	printing(“Locking box”)
+	closes soleniod
+
+
+Speakers speaker(): void
+	int num = 1
+	while int >= 20;
+		beep (1/8 seconds)
+		delay 1000
+
+
+Password access(): void
+	bool truthval = (touch() LOGICALAND comparison())
+	if truthval == true:
+		printing(“Password successful”)
+		opensoleniod() = opens
+
+	if truthval == false:
+		char arrayAction[0] = printing(“Wrong Password”)
+		Speaker() =  beeps for 20 seconds
+
+
+Password commands():
+	while sliderswitch = 1, set password
+		printing(“Please enter password”)
+		printingLower (“Then press *”)
+		storing()
+		printing(“Password stored”)
+		printingLower (“Please slide switch off”)
+
+	while siderswitch = 0, check password
+		printing(“Please enter password”)
+		printingLower (“Then press #”)
+		entering()
+		if comparison() == true
+			printing(“perform capacitive touch”)
+			printingLower(“leave finger on pad”)
+			touch()
+			access()
+		else
+			access()
+			clearscreen():
+			printing(“wrong password, try again”)
+			commands()
+
+
+
+main(): void
+	initialize variables
+	initialize features of LCD/keypad/interrupts…etc
+
+	storepassword = [0,0,0,0]
+	printing (“Default password is 0000”)
+	printingLower (“to change pass, slide switch on”)
+	delays(10000)
+
+	while (1)
+		commands():
+		printing (“Press “*” to close box”)
+		closesoleniod()

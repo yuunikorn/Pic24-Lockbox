@@ -1,1 +1,3 @@
 # Pic24-Lockbox
+
+This is a microcontroller project for CSC218 using a PIC24 microcontroller to create a lasercut wooden lockbox capable of being locked with a solenoid. The security mechanism comes from a 12-button keypad taking in a password set and verified by I2C, and a fingerprint scanner (due to the constraint of time and funding, we implemented this part with a capacitive touch sensor) which opens the box only if both the values of the password and the fingerprint matches the database of authorized values. The box also features a relocking mechanism when a special character on the keypad is triggered.
